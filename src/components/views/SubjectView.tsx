@@ -9,7 +9,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { SubjectId, ConceptNode } from '@/lib/types';
-import { SUBJECTS, DOCUMENTS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
 
 interface SubjectViewProps {
   subjectId: SubjectId;
@@ -30,7 +30,9 @@ export function SubjectView({
   const [selectedConcept, setSelectedConcept] = useState<ConceptNode | null>(null);
   const [collapsedNodes, setCollapsedNodes] = useState<Record<string, boolean>>({});
 
-  const subject = SUBJECTS.find((s) => s.id === subjectId) || SUBJECTS[0];
+  const subject = studyQueries.getSubject(subjectId);
+
+  if (!subject) return <p role="status" className="p-8 text-[#B3B6B0]">Subject not found.</p>;
 
   const toggleNode = (nodeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -132,7 +134,7 @@ export function SubjectView({
     );
   };
 
-  const subjectDocs = DOCUMENTS.filter((d) => d.subject === subject.name);
+  const subjectDocs = studyQueries.listDocuments(subjectId);
 
   return (
     <div className="flex-1 overflow-y-auto px-8 py-7 max-w-5xl mx-auto w-full">
@@ -318,7 +320,7 @@ export function SubjectView({
       {activeTab === 'materials' && (
         <div className="space-y-4">
           <div className="text-[12px] text-[#747872]">
-            Indexed course documents and personal notes for {subject.name}:
+            Sample course documents and notes for {subject.name}:
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -358,7 +360,7 @@ export function SubjectView({
             AI Tutor Research Canvas
           </h3>
           <p className="text-[12px] text-[#B3B6B0]">
-            Ask questions grounded strictly in your {subject.name} lecture notes and reference textbooks.
+            Explore sample tutor answers for {subject.name} lecture notes and reference textbooks.
           </p>
           <div className="flex gap-2">
             <button

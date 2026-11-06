@@ -85,7 +85,7 @@ export function RightUtilityRail({
             {activeTool === 'sources' && (
               <div className="space-y-4">
                 <div className="text-[12px] text-[#747872] leading-relaxed">
-                  Citations mapped directly from your uploaded materials for current study context:
+                  Sample citations for the demo study context:
                 </div>
 
                 <div className="p-3 rounded-[8px] bg-[#151615] border border-[#202220] hover:border-[#373A37] transition-colors">
@@ -190,7 +190,7 @@ export function RightUtilityRail({
             {activeTool === 'notes' && (
               <div className="flex flex-col h-full gap-3">
                 <span className="text-[11px] text-[#747872]">
-                  Synced workspace scratchpad. Automatically indexed into your revision questions.
+                  Local scratchpad for this view. Not saved, synced, or indexed.
                 </span>
                 <textarea
                   value={notesContent}

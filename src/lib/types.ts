@@ -1,6 +1,8 @@
 export type NavTab = 'today' | 'library' | 'subjects' | 'practice' | 'progress';
 
-export type SubjectId = 'data-structures' | 'discrete-math' | 'applied-gen-ai';
+// IDs are opaque strings; demo slugs and future database UUIDs are both valid.
+export type { SubjectId } from '@/types/domain';
+import type { SubjectId } from '@/types/domain';
 
 export type MasteryStatus = 'mastered' | 'strong' | 'learning' | 'weak';
 

@@ -7,15 +7,16 @@ import {
   Search,
   ArrowUpRight
 } from 'lucide-react';
-import { DOCUMENTS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
+const DOCUMENTS = studyQueries.listDocuments();
 
 interface LibraryViewProps {
   onOpenDocument: (docId: string) => void;
-  onUploadNotes: () => void;
 }
 
-export function LibraryView({ onOpenDocument, onUploadNotes }: LibraryViewProps) {
+export function LibraryView({ onOpenDocument }: LibraryViewProps) {
   const [filterType, setFilterType] = useState<'All' | 'PDF' | 'Notes'>('All');
+  const [showUploadNotice, setShowUploadNotice] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredDocs = DOCUMENTS.filter((doc) => {
@@ -38,18 +39,20 @@ export function LibraryView({ onOpenDocument, onUploadNotes }: LibraryViewProps)
             Study Materials & Notes
           </h1>
           <p className="text-[13px] text-[#B3B6B0] mt-0.5">
-            Indexed textbook chapters, professor handouts, and synced notes.
+            Sample documents and notes. Uploads and indexing arrive in Phase 2.
           </p>
         </div>
 
         <button
-          onClick={onUploadNotes}
+          onClick={() => setShowUploadNotice(true)}
           className="h-8 px-4 rounded-[6px] bg-[#9AF59E] hover:bg-[#b0f8b4] text-[#0B0C0B] text-[12px] font-medium flex items-center gap-2 transition-colors self-start sm:self-auto shrink-0 font-mono-numbers"
         >
           <Upload className="w-3.5 h-3.5" />
-          <span>Upload Notes</span>
+          <span>Upload Notes · Demo</span>
         </button>
       </div>
+
+      {showUploadNotice && <p role="status" className="mb-4 text-[13px] text-[#B3B6B0]">Uploads are unavailable in demo mode. No file has been uploaded or indexed.</p>}
 
       {/* Filter and Search Bar */}
       <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-[#202220]">

@@ -6,7 +6,8 @@ import {
   Clock,
   FileText
 } from 'lucide-react';
-import { WEAK_CONCEPTS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
+const { weakConcepts: WEAK_CONCEPTS } = studyQueries.getProgress();
 import { SubjectId } from '@/lib/types';
 
 interface DashboardViewProps {

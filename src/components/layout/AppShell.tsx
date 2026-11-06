@@ -20,14 +20,18 @@ import { DocumentReaderView } from '@/components/views/DocumentReaderView';
 import { ProgressView } from '@/components/views/ProgressView';
 import { LandingPageView } from '@/components/views/LandingPageView';
 import { NavTab, SubjectId } from '@/lib/types';
+import { useLiveWorkspace } from '@/hooks/useLiveWorkspace';
+import { LiveStudyView } from '@/components/views/LiveStudyView';
+import { SessionBridge } from '@/components/auth/SessionBridge';
 
-export function AppShell() {
+export function AppShell({ liveUser }: { liveUser?: { id: string; email: string } }) {
+  const live = useLiveWorkspace(Boolean(liveUser));
   // Mode: 'app' or 'landing'
   const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
 
   // Navigation state
   const [currentTab, setCurrentTab] = useState<NavTab>('today');
-  const [selectedSubjectId, setSelectedSubjectId] = useState<SubjectId>('data-structures');
+  const [selectedSubjectId, setSelectedSubjectId] = useState<SubjectId>(liveUser ? '' : 'data-structures');
 
   // Secondary/special views
   const [isTutorViewActive, setIsTutorViewActive] = useState(false);
@@ -72,12 +76,15 @@ export function AppShell() {
   };
 
   const handleStartNewSession = () => {
+    if (liveUser) { handleSelectTab('subjects'); return; }
+    setIsMobileMenuOpen(false);
     setIsQuizActive(true);
     setIsTutorViewActive(false);
     setActiveDocumentId(null);
   };
 
   const handleOpenTutor = (query: string) => {
+    setIsMobileMenuOpen(false);
     setActiveTutorQuery(query);
     setIsTutorViewActive(true);
     setIsQuizActive(false);
@@ -85,6 +92,7 @@ export function AppShell() {
   };
 
   const handleOpenDocument = (docId: string, page = 16) => {
+    setIsMobileMenuOpen(false);
     setActiveDocumentId(docId);
     setActiveDocPage(page);
     setIsTutorViewActive(false);
@@ -97,7 +105,7 @@ export function AppShell() {
   }
 
   // If in Focus Mode
-  if (isFocusModeActive) {
+  if (isFocusModeActive && !liveUser) {
     return (
       <FocusModeView
         onExitFocusMode={() => setIsFocusModeActive(false)}
@@ -108,6 +116,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-[#202720] flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8 antialiased selection:bg-[#9AF59E]/20">
+      {liveUser && <SessionBridge />}
       {/* Outer Desktop Application Shell */}
       <div className="w-full max-w-[1600px] h-[92vh] min-h-[680px] bg-[#0B0C0B] border border-[#292B29] rounded-[18px] shadow-2xl flex flex-col overflow-hidden relative">
         {/* Top Desktop Window Titlebar & Controls */}
@@ -127,7 +136,7 @@ export function AppShell() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#1B1C1B] border border-[#292B29]" />
               <span className="w-2.5 h-2.5 rounded-full bg-[#1B1C1B] border border-[#292B29]" />
               <span className="ml-2 text-[11px] font-mono-numbers text-[#747872] hidden sm:inline">
-                LUMA Desktop v1.4 · Connected
+                {liveUser ? 'LUMA · Private workspace' : 'LUMA · Demo workspace'}
               </span>
             </div>
           </div>
@@ -147,7 +156,7 @@ export function AppShell() {
           {/* Right Controls: Mode Toggle & Focus Shortcut */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsFocusModeActive(true)}
+              onClick={() => liveUser ? handleSelectTab('practice') : setIsFocusModeActive(true)}
               className="h-6 px-2.5 rounded-[4px] bg-[#151615] border border-[#202220] hover:bg-[#1B1C1B] text-[#9AF59E] text-[11px] font-mono-numbers flex items-center gap-1.5 transition-colors"
               title="Launch Focus Mode"
             >
@@ -170,6 +179,9 @@ export function AppShell() {
           {/* Zone 1: Left Sidebar (Desktop + Mobile responsive drawer) */}
           <div className="hidden md:flex h-full">
             <Sidebar
+              subjects={liveUser ? live.subjects : undefined}
+              isLive={Boolean(liveUser)}
+              accountLabel={liveUser?.email}
               currentTab={currentTab}
               onSelectTab={handleSelectTab}
               selectedSubjectId={selectedSubjectId}
@@ -191,6 +203,9 @@ export function AppShell() {
             <div className="md:hidden absolute inset-0 z-40 bg-[#0B0C0B]/80 flex">
               <div className="w-72 h-full bg-[#0D0E0D] border-r border-[#202220] shadow-2xl">
                 <Sidebar
+                  subjects={liveUser ? live.subjects : undefined}
+                  isLive={Boolean(liveUser)}
+                  accountLabel={liveUser?.email}
                   currentTab={currentTab}
                   onSelectTab={handleSelectTab}
                   selectedSubjectId={selectedSubjectId}
@@ -212,13 +227,16 @@ export function AppShell() {
 
           {/* Zone 2: Main Workspace Canvas */}
           <main className="flex-1 flex flex-col bg-[#151615] overflow-hidden relative">
-            {activeDocumentId ? (
+            {liveUser ? (
+              <LiveStudyView tab={currentTab} selectedSubjectId={selectedSubjectId} state={live} onSelectSubject={(id) => { setSelectedSubjectId(id); handleSelectTab('subjects'); }} />
+            ) : activeDocumentId ? (
               <DocumentReaderView
+                key={`${activeDocumentId}:${activeDocPage}`}
                 documentId={activeDocumentId}
                 initialPage={activeDocPage}
                 onBack={() => setActiveDocumentId(null)}
                 onOpenTutor={handleOpenTutor}
-                onStartQuiz={() => setIsQuizActive(true)}
+                onStartQuiz={handleStartNewSession}
               />
             ) : isQuizActive ? (
               <QuizView
@@ -227,9 +245,10 @@ export function AppShell() {
               />
             ) : isTutorViewActive ? (
               <TutorView
+                key={activeTutorQuery}
                 initialQuery={activeTutorQuery}
                 onOpenDocument={handleOpenDocument}
-                onStartQuizForTopic={() => setIsQuizActive(true)}
+                onStartQuizForTopic={handleStartNewSession}
               />
             ) : currentTab === 'today' ? (
               <DashboardView
@@ -238,20 +257,20 @@ export function AppShell() {
                   handleSelectTab('subjects');
                 }}
                 onReviewConcept={() => setIsFocusModeActive(true)}
-                onStartQuiz={() => setIsQuizActive(true)}
+                onStartQuiz={handleStartNewSession}
                 onOpenTutor={handleOpenTutor}
               />
             ) : currentTab === 'subjects' ? (
               <SubjectView
+                key={selectedSubjectId}
                 subjectId={selectedSubjectId}
-                onStartQuiz={() => setIsQuizActive(true)}
+                onStartQuiz={handleStartNewSession}
                 onOpenTutor={handleOpenTutor}
                 onOpenDocument={handleOpenDocument}
               />
             ) : currentTab === 'library' ? (
               <LibraryView
                 onOpenDocument={handleOpenDocument}
-                onUploadNotes={() => handleOpenTutor('Explain LR rotation using my notes')}
               />
             ) : currentTab === 'practice' ? (
               <QuizView
@@ -260,8 +279,8 @@ export function AppShell() {
               />
             ) : currentTab === 'progress' ? (
               <ProgressView
-                onStartQuiz={() => setIsQuizActive(true)}
-                onEnterFocusMode={() => setIsFocusModeActive(true)}
+                onStartQuiz={handleStartNewSession}
+                onEnterFocusMode={() => liveUser ? handleSelectTab('practice') : setIsFocusModeActive(true)}
                 onSelectSubject={(id) => {
                   setSelectedSubjectId(id);
                   handleSelectTab('subjects');
@@ -272,18 +291,19 @@ export function AppShell() {
 
           {/* Zone 3: Right Utility Rail (Desktop) */}
           <div className="hidden lg:flex h-full">
-            <RightUtilityRail
+            {liveUser ? <aside className="w-14 border-l border-[#202220] bg-[#0D0E0D] flex flex-col items-center py-5"><span title="Private workspace" className="w-2 h-2 rounded-full bg-[#9AF59E]" /><span className="sr-only">Private workspace</span></aside> : <RightUtilityRail
               activeTool={activeUtilityTool}
               onSelectTool={setActiveUtilityTool}
               onTriggerFocusMode={() => setIsFocusModeActive(true)}
               onOpenDocument={handleOpenDocument}
-            />
+            />}
           </div>
         </div>
       </div>
 
       {/* Global Command Palette */}
       <CommandPalette
+        liveSubjects={liveUser ? live.subjects : undefined}
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         onNavigateTab={handleSelectTab}
@@ -291,8 +311,8 @@ export function AppShell() {
           setSelectedSubjectId(id);
           handleSelectTab('subjects');
         }}
-        onStartQuiz={() => setIsQuizActive(true)}
-        onEnterFocusMode={() => setIsFocusModeActive(true)}
+        onStartQuiz={handleStartNewSession}
+        onEnterFocusMode={() => liveUser ? handleSelectTab('practice') : setIsFocusModeActive(true)}
         onSelectTutorQuestion={handleOpenTutor}
         onOpenDocument={handleOpenDocument}
       />

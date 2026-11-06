@@ -16,9 +16,14 @@ import {
   LucideIcon
 } from 'lucide-react';
 import { NavTab, SubjectId } from '@/lib/types';
-import { SUBJECTS, RECENT_SUBJECTS, RECENT_TUTOR_QUESTIONS } from '@/lib/mock-data';
+import { RECENT_SUBJECTS, RECENT_TUTOR_QUESTIONS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
+
 
 interface SidebarProps {
+  subjects?: { id: string; name: string; mastery?: number }[];
+  isLive?: boolean;
+  accountLabel?: string;
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   selectedSubjectId: SubjectId;
@@ -32,6 +37,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({
+  subjects,
+  isLive = false,
+  accountLabel,
   currentTab,
   onSelectTab,
   selectedSubjectId,
@@ -43,6 +51,7 @@ export function Sidebar({
   onSelectTutorQuestion,
   isTutorModeActive = false,
 }: SidebarProps) {
+  const SUBJECTS = subjects ?? studyQueries.listSubjects();
   const navItems: { id: NavTab; label: string; icon: LucideIcon }[] = [
     { id: 'today', label: 'Today', icon: Calendar },
     { id: 'library', label: 'Library', icon: BookOpen },
@@ -103,7 +112,7 @@ export function Sidebar({
 
         <div className="flex flex-col items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[#202120] border border-[#292B29] flex items-center justify-center text-[11px] font-mono-numbers text-[#B3B6B0]">
-            AC
+            {isLive ? (accountLabel?.[0]?.toUpperCase() || 'L') : 'AC'}
           </div>
         </div>
       </aside>
@@ -208,7 +217,7 @@ export function Sidebar({
                 >
                   <span className="truncate pr-2">{sub.name}</span>
                   <span className="font-mono-numbers text-[11px] text-[#747872] shrink-0">
-                    {sub.mastery}%
+                    {isLive ? '—' : `${sub.mastery}%`}
                   </span>
                 </button>
               );
@@ -220,7 +229,7 @@ export function Sidebar({
         <div className="h-[1px] bg-[#202220] mx-3 my-3" />
 
         {/* Contextual Section: Recent Tutor Questions if tutor mode, else Recent topics */}
-        {isTutorModeActive ? (
+        {!isLive && (isTutorModeActive ? (
           <div className="px-3">
             <div className="flex items-center justify-between px-2 mb-1.5">
               <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#747872]">
@@ -274,7 +283,7 @@ export function Sidebar({
               ))}
             </div>
           </div>
-        )}
+        ))}
       </div>
 
       {/* Bottom Profile and Settings */}
@@ -282,11 +291,11 @@ export function Sidebar({
         <div className="flex items-center justify-between p-2 rounded-[8px] bg-[#151615] border border-[#202220]">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="w-7 h-7 rounded-[6px] bg-[#1B1C1B] border border-[#292B29] flex items-center justify-center text-[11px] font-mono-numbers text-[#9AF59E] font-medium shrink-0">
-              AC
+              {isLive ? (accountLabel?.[0]?.toUpperCase() || 'L') : 'AC'}
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-[12px] font-medium text-[#F2F3EF] truncate">Alex Chen</span>
-              <span className="text-[10px] text-[#747872] font-mono-numbers truncate">Computer Science IV</span>
+              <span className="text-[12px] font-medium text-[#F2F3EF] truncate">{isLive ? accountLabel : 'Alex Chen'}</span>
+              <span className="text-[10px] text-[#747872] font-mono-numbers truncate">{isLive ? 'Private workspace' : 'Computer Science IV'}</span>
             </div>
           </div>
           <button

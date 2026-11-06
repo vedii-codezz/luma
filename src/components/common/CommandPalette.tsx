@@ -12,6 +12,7 @@ import {
 import { NavTab, SubjectId } from '@/lib/types';
 
 interface CommandPaletteProps {
+  liveSubjects?: { id: string; name: string }[];
   isOpen: boolean;
   onClose: () => void;
   onNavigateTab: (tab: NavTab) => void;
@@ -31,6 +32,7 @@ interface CommandItem {
 }
 
 export function CommandPalette({
+  liveSubjects,
   isOpen,
   onClose,
   onNavigateTab,
@@ -53,7 +55,11 @@ export function CommandPalette({
     }
   }, [isOpen]);
 
-  const allItems: CommandItem[] = [
+  const allItems: CommandItem[] = liveSubjects !== undefined ? [
+    ...liveSubjects.map((subject): CommandItem => ({ id: subject.id, category: 'Concepts', title: subject.name, action: () => { onSelectSubject(subject.id); onClose(); } })),
+    { id: 'live-subjects', category: 'Actions', title: 'Manage subjects', action: () => { onNavigateTab('subjects'); onClose(); } },
+    { id: 'live-library', category: 'Actions', title: 'Open private library', action: () => { onNavigateTab('library'); onClose(); } },
+  ] : [
     // Concepts
     {
       id: 'c-avl',

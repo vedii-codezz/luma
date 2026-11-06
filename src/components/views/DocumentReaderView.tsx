@@ -10,7 +10,7 @@ import {
   Sparkles,
   PenTool,
 } from 'lucide-react';
-import { DOCUMENTS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
 
 interface DocumentReaderViewProps {
   documentId: string;
@@ -27,10 +27,12 @@ export function DocumentReaderView({
   onOpenTutor,
   onStartQuiz,
 }: DocumentReaderViewProps) {
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [currentPage, setCurrentPage] = useState(() => Math.max(1, Math.min(initialPage, studyQueries.getDocument(documentId)?.pageCount ?? 1)));
   const [zoomLevel, setZoomLevel] = useState(100);
 
-  const doc = DOCUMENTS.find((d) => d.id === documentId) || DOCUMENTS[0];
+  const doc = studyQueries.getDocument(documentId);
+
+  if (!doc) return <div className="p-8 text-[#B3B6B0]" role="status">Document not found. <button onClick={onBack}>Back to workspace</button></div>;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#151615]">

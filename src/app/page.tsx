@@ -1,5 +1,5 @@
-import { AppShell } from '@/components/layout/AppShell';
+import { LandingEntry } from '@/components/landing/LandingEntry';
 
 export default function Home() {
-  return <AppShell />;
+  return <LandingEntry />;
 }

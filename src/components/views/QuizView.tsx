@@ -5,7 +5,8 @@ import {
   ArrowRight,
   RotateCcw
 } from 'lucide-react';
-import { QUIZ_QUESTIONS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
+const QUIZ_QUESTIONS = studyQueries.listQuizQuestions();
 
 interface QuizViewProps {
   onBackToDashboard: () => void;

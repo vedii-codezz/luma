@@ -62,7 +62,7 @@ export function TutorView({
             ASK LUMA
           </span>
           <span className="text-[11px] text-[#50534F] font-mono-numbers">
-            Research Canvas · Grounded in uploaded notes
+            Research Canvas · Sample answers and citations
           </span>
         </div>
 

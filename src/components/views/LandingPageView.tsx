@@ -21,7 +21,7 @@ export function LandingPageView({ onEnterApp }: LandingPageViewProps) {
             LUMA
           </span>
           <span className="text-[10px] text-[#747872] px-1.5 py-0.5 rounded-[4px] bg-[#151615] border border-[#202220] font-mono-numbers hidden sm:inline">
-            AI Study Workspace
+            Study Workspace Preview
           </span>
         </div>
 
@@ -278,7 +278,7 @@ export function LandingPageView({ onEnterApp }: LandingPageViewProps) {
                 onClick={onEnterApp}
                 className="text-[11px] text-[#9AF59E] hover:underline font-mono-numbers flex items-center gap-1"
               >
-                <span>Launch live environment</span>
+                <span>Open workspace</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             </div>

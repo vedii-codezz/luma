@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { SUBJECTS, WEAK_CONCEPTS } from '@/lib/mock-data';
+import { studyQueries } from '@/features/study/queries';
+const { subjects: SUBJECTS, weakConcepts: WEAK_CONCEPTS } = studyQueries.getProgress();
 import { SubjectId } from '@/lib/types';
 
 interface ProgressViewProps {
@@ -27,7 +28,7 @@ export function ProgressView({
           Knowledge Consolidation
         </h1>
         <p className="text-[13px] text-[#B3B6B0]">
-          LUMA evaluates long-term recall stability across your active subject graphs.
+          Demonstration mastery scores and retention metrics; no progress is saved.
         </p>
       </div>
 
